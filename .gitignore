@@ -20,6 +20,8 @@ object_script.*.Debug
 *.pro.user.*
 *.qbs.user
 *.qbs.user.*
+*.txt.user
+*.txt.user.*
 *.moc
 moc_*.cpp
 moc_*.h
@@ -52,3 +54,7 @@ compile_commands.json
 *creator.user*
 
 *_qmlcache.qrc
+
+# build path
+bin
+build
