@@ -1,45 +1,47 @@
 #ifndef DB_H
 #define DB_H
 
+#include <functional>
+#include <condition_variable>
+#include <mutex>
+
+#include <QQueue>
 #include <QObject>
+#include <QPointer>
 #include <QThreadPool>
 #include <QReadWriteLock>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
-#include <QQueue>
-#include <functional>
-#include <QPointer>
+#include <QtSql/QSqlError>
 
-class DBPool : public QObject
+class DB : public QObject
 {
     Q_OBJECT
-public:
-    using CreateConn = std::function<QSqlDatabase()>;
 
 public:
-    DBPool(QObject* p = Q_NULLPTR);
-    DBPool(CreateConn&& fn, QObject* p = Q_NULLPTR);
-    ~DBPool();
+    using FQuery = std::function<void(QSqlQuery&)>;
 
-    static QPointer<DBPool> instance()
-    {
-        static QPointer<DBPool> inst(new DBPool());
-        return inst;
-    }
+public:
+    DB(std::size_t connNum, QThreadPool* threads = nullptr, QObject* p = Q_NULLPTR);
+    ~DB();
 
-    bool empty();
-    bool full();
-    void setCreateConnFn(CreateConn&& fn);
-    qint64 getMaxConn();
-    void setMaxConn(const qint64 sz);
-    QSqlDatabase getConn();
-    void releaseConn(QSqlDatabase& db);
+    static QPointer<DB> instance();
+
+    void setThreadPool(QThreadPool* threads);
+    void exec(const QString& sql, FQuery fn);
+
+    QSqlDatabase acquire(const int timeout_ms = 0);
+    void giveback(const QSqlDatabase& db);
+
+signals:
+    void sigDBLastError(QString err);
 
 private:
-    QReadWriteLock       m_rwlock;
-    qint64               m_maxConn;
-    QQueue<QSqlDatabase> m_conns;
-    CreateConn           m_createConn;
+    std::mutex                         m_lock;
+    QQueue<QSqlDatabase>               m_conns;
+    QThreadPool*                       m_threads;
+    std::condition_variable            m_cond;
+    qint64                             m_id;
 };
 
 #endif

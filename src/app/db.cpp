@@ -1,92 +1,117 @@
 #include "db.h"
-
-#include <QtSql/QSqlError>
-#include <QDir>
-
 #include "Config.h"
+#include "libcpp/log/logger.hpp"
 
-DBPool::DBPool(QObject* p)
+static std::once_flag once;
+static QPointer<DB> db_inst;
+
+DB::DB(std::size_t connNum, QThreadPool* threads, QObject* p)
     : QObject(p)
-    , m_rwlock{}
-    , m_maxConn{0}
-    , m_createConn{[]() -> QSqlDatabase { return QSqlDatabase(); }}
+    , m_threads{threads}
 {
+    for (m_id = 0; m_id < connNum; ++m_id)
+    {
+        QSqlDatabase db = QSqlDatabase::addDatabase(Config::instance()->dbDriver(), QString::number(m_id));
+        db.setDatabaseName(Config::instance()->dbPath());
+        if (!db.open())
+            continue;
+
+        m_conns.push_back(db);
+    }
 }
 
-DBPool::DBPool(CreateConn&& fn, QObject* p)
-    : QObject(p)
-    , m_rwlock{}
-    , m_maxConn{0}
-    , m_createConn{std::move(fn)}
+DB::~DB()
 {
+    m_cond.notify_all();
+    while (!m_conns.isEmpty())
+    {
+        auto conn = m_conns.dequeue();
+        if (conn.isOpen())
+            conn.close();
+    }
 }
 
-DBPool::~DBPool()
+QPointer<DB> DB::instance()
 {
+    std::call_once(once, [](){ db_inst = new DB(Config::instance()->dbMaxConn()); });
+    return db_inst;
 }
 
-bool DBPool::empty()
+void DB::exec(const QString& sql, FQuery fn)
 {
-    m_rwlock.lockForRead();
-    bool ret = m_conns.empty();
-    m_rwlock.unlock();
-    return ret;
+    LOG_INFO("Exec {}", sql.toStdString());
+    auto db = acquire();
+    if (!db.isOpen())
+    {
+        LOG_WARN("Open database fail");
+        emit sigDBLastError("Database conn is invalid");
+        return;
+    }
+
+    if (m_threads == nullptr)
+    {
+        QSqlQuery query{db};
+        if (!query.exec(sql))
+        {
+            LOG_WARN("Exec {} fail", sql.toStdString());
+            emit sigDBLastError(query.lastError().text());
+        }
+
+        fn(query);
+        giveback(db);
+        return;
+    }
+
+    m_threads->start([this, db, sql, fn](){
+        QSqlQuery query{db};
+        if (!query.exec(sql))
+        {
+            LOG_WARN("Exec {} fail", sql.toStdString());
+            emit sigDBLastError(query.lastError().text());
+        }
+
+        fn(query);
+        this->giveback(db);
+    });
 }
 
-bool DBPool::full()
+void DB::setThreadPool(QThreadPool* threads)
 {
-    m_rwlock.lockForRead();
-    bool ret = (m_conns.size() == m_maxConn);
-    m_rwlock.unlock();
-    return ret;
+    std::lock_guard<std::mutex> lock{m_lock};
+    m_threads = threads;
 }
 
-void DBPool::setCreateConnFn(CreateConn&& fn)
+QSqlDatabase DB::acquire(const int timeout_ms)
 {
-    m_rwlock.lockForWrite();
-    m_createConn = std::move(fn);
-    m_rwlock.unlock();
-}
+    if (timeout_ms > 0 && m_conns.isEmpty())
+    {
+        std::unique_lock<std::mutex> lock{m_lock};
+        bool ok = m_cond.wait_for(
+            lock,
+            std::chrono::milliseconds(timeout_ms),
+            [this]{ return !this->m_conns.empty(); });
+        if (!ok)
+            return QSqlDatabase();
+    }
 
-qint64 DBPool::getMaxConn()
-{
-    m_rwlock.lockForRead();
-    qint64 ret = m_maxConn;
-    m_rwlock.unlock();
-    return ret;
-}
-
-void DBPool::setMaxConn(const qint64 sz)
-{
-    m_rwlock.lockForWrite();
-    while (m_conns.size() < sz)
-        m_conns.enqueue(m_createConn());
-    m_rwlock.unlock();
-}
-
-QSqlDatabase DBPool::getConn()
-{
-    if (empty())
+    std::lock_guard<std::mutex> lock{m_lock};
+    if (m_conns.isEmpty())
         return QSqlDatabase();
 
-    m_rwlock.lockForWrite();
-    auto db = m_conns.dequeue();
-    if (!db.isOpen())
-        db.open();
+    do {
+        auto conn = m_conns.dequeue();
+        if (conn.isOpen())
+            return conn;
 
-    m_rwlock.unlock();
-    return db;
+        QSqlDatabase::removeDatabase(conn.connectionName());
+        m_id++;
+        QSqlDatabase::addDatabase(Config::instance()->dbDriver(), QString::number(m_id));
+    } while (true);
 }
 
-void DBPool::releaseConn(QSqlDatabase& db)
+void DB::giveback(const QSqlDatabase& db)
 {
-    if (full())
-        return;
-
-    m_rwlock.lockForWrite();
-    if (!db.isOpen())
-        db.open();
-    if (db.isValid())
-        m_conns.push_back(db);
-    m_rwlock.unlock();
+    std::lock_guard<std::mutex> lock{m_lock};
+    m_conns.enqueue(db);
+    m_cond.notify_one();
 }

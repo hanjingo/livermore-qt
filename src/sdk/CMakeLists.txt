@@ -29,6 +29,7 @@ include_directories(${3RD_DIR}/libcpp)
 set(PROJECT_SOURCES
     livermoresdk.h
     error.h
+    market_data.h
 )
 
 add_library(${PROJECT_NAME} SHARED

@@ -37,19 +37,21 @@ set(PROJECT_SOURCES
         autogrid.cpp
         kvolumegrid.h
         kvolumegrid.cpp
-        datafile.h
-        datafile.cpp
         config.h
         config.cpp
         db.h
         db.cpp
+        data.h
+        data.cpp
+        util.h
+        util.cpp
 )
 
 set(3RD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../3rd)
-set(COMM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../comm)
+set(SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../sdk)
 
 include_directories(${3RD_DIR}/libcpp)
-include_directories(${COMM_DIR})
+include_directories(${SDK_DIR})
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(${PROJECT_NAME}

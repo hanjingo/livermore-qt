@@ -20,12 +20,15 @@ public:
         return inst;
     }
 
-    inline QString dbType()    { return m_setting.value("db_type", "QSQLITE").toString(); }
-    inline QString dbMain()    { return m_setting.value("db_main", "md").toString(); }
-    inline QString dbPath()    { return m_setting.value("db_path", "./app").toString(); }
-    inline qint64  dbMaxConn() { return m_setting.value("db_max_conn", 1).toInt(); }
+    inline int     logLvl()      { return m_setting.value("log_lvl", 1).toInt(); }
 
-    inline QString qmPath() { return m_setting.value("qm_path", "./kstock.qm").toString(); }
+    inline QString dbDriver()    { return m_setting.value("db_driver", "QSQLITE").toString(); }
+    inline QString dbMain()      { return m_setting.value("db_main", "tick").toString(); }
+    inline QString dbPath()      { return m_setting.value("db_path", "./livermore-qt.db").toString(); }
+    inline int     dbMaxConn()   { return m_setting.value("db_max_conn", 1).toInt(); }
+    inline bool    dbAsyncExec() { return m_setting.value("db_async_exec", 1).toInt() == 1; }
+
+    inline QString qmPath()      { return m_setting.value("qm_path", "./kstock.qm").toString(); }
 private:
     QSettings m_setting;
 };

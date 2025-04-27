@@ -2,35 +2,43 @@
 #define KVOLUMEGRID_H
 
 #include "autogrid.h"
-#include "datafile.h"
+#include "data.h"
 
 #include <QPoint>
 
 class kVolumeGrid : public AutoGrid
 {
+    Q_OBJECT
+
 public:
     explicit kVolumeGrid(QWidget* parent);
-    bool readData(QString strFile);
-    void initial();
     void drawYtick();
     void drawVolume();
     void virtual paintEvent(QPaintEvent* event);
     void getIndicator();
     void drawAverageLine(int day);
 
+    void setEndDay(const int endDay) {
+        m_endDay = endDay;
+        m_beginDay = m_endDay - m_totalDay;
+        m_currDay = m_beginDay + m_totalDay /2; }
+    void setTotalDay(const int totalDay) {
+        m_totalDay = totalDay;
+        m_beginDay = m_endDay - m_totalDay;
+        m_currDay = m_beginDay + m_totalDay /2; }
+
+private slots:
+    void dataUpdated();
+
 private:
-    DataFile mDataFile;
+    int m_beginDay;
+    int m_endDay;
+    int m_totalDay;
+    int m_currDay;
+    double m_maxVolume;
+    int m_lineWidth;
 
-    int beginDay;
-    int endDay;
-    int totalDay;
-    int currentDay;
-
-    double maxVolume;
-
-    QPoint mousePoint;
-
-    int lineWidth;
+    QPoint m_mousePoint;
 };
 
 #endif // KVOLUMEGRID_H
