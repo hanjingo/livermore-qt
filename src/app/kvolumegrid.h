@@ -2,9 +2,22 @@
 #define KVOLUMEGRID_H
 
 #include "autogrid.h"
-#include "data.h"
 
 #include <QPoint>
+#include <QDate>
+#include <QVector>
+#include <tuple>
+
+struct kVolume
+{
+public:
+    QDate  tradingDay;
+    double volume;
+    double openPrice;
+    double closePrice;
+    double dayVolumeAverage5;
+    double dayVolumeAverage10;
+};
 
 class kVolumeGrid : public AutoGrid
 {
@@ -15,30 +28,25 @@ public:
     void drawYtick();
     void drawVolume();
     void virtual paintEvent(QPaintEvent* event);
-    void getIndicator();
     void drawAverageLine(int day);
 
-    void setEndDay(const int endDay) {
-        m_endDay = endDay;
-        m_beginDay = m_endDay - m_totalDay;
-        m_currDay = m_beginDay + m_totalDay /2; }
-    void setTotalDay(const int totalDay) {
-        m_totalDay = totalDay;
-        m_beginDay = m_endDay - m_totalDay;
-        m_currDay = m_beginDay + m_totalDay /2; }
+private:
+    void calcDayVolumeAverage5();
+    void calcDayVolumeAverage10();
 
 private slots:
-    void dataUpdated();
+    // [{tradingDay,volume,openPrice,closePrice}, ...]
+    void kVolumeChg(QVector<std::tuple<QDate, double, double, double>>& data);
 
 private:
-    int m_beginDay;
-    int m_endDay;
-    int m_totalDay;
-    int m_currDay;
+    QDate  m_beginDay;
+    QDate  m_endDay;
     double m_maxVolume;
-    int m_lineWidth;
-
+    int    m_totalDay;
+    int    m_lineWidth;
     QPoint m_mousePoint;
+
+    QVector<kVolume> m_volumes;
 };
 
 #endif // KVOLUMEGRID_H

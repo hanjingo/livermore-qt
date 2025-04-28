@@ -77,7 +77,7 @@ R"(CREATE TABLE IF NOT EXISTS "tick" (
     w.show();
 
     // repaint kvolumegrid
-    Data::instance()->refreshData();
+    Data::instance()->load();
     
     LOG_INFO("livermore-qt running");
     return a.exec();

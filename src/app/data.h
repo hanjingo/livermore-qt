@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QPointer>
 #include <QreadWriteLock>
+#include <QDate>
 
 #include "market_data.h"
 
@@ -23,17 +24,15 @@ public:
     }
 
     inline QVector<market_data>& mds() { return m_mds; }
-
-    double md5DayVolumeAverage();
-    double md10DayVolumeAverage();
-    void refreshData() { _load(); }
+    void load();
+    void save();
 
 signals:
-    void sigDataUpdated();
+    // [{tradingDay,volume,openPrice,closePrice}, ...]
+    void sigkVolumeChg(QVector<std::tuple<QDate, double, double, double>>&);
 
-private:
-    void _load();
-    void _save();
+    // [{tradingDay,volume,openPrice,closePrice,highestBid,lowestBid,amountOfIncrease}, ...]
+    void sigkLineChg(QVector<std::tuple<QDate, double, double, double, double, double, double>>&);
 
 private:
     QReadWriteLock       m_lock;

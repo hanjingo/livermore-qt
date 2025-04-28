@@ -5,6 +5,7 @@
 #include "libcpp/log/logger.hpp"
 
 #include <QVariant>
+#include <tuple>
 
 Data::Data(QObject *p)
     : QObject(p)
@@ -15,17 +16,7 @@ Data::~Data()
 {
 }
 
-double Data::md5DayVolumeAverage()
-{
-    return 0.0;
-}
-
-double Data::md10DayVolumeAverage()
-{
-    return 0.0;
-}
-
-void Data::_load()
+void Data::load()
 {
     DB::instance()->exec("SELECT * FROM tick LIMIT 10;", [this](QSqlQuery& query){
         auto err = query.lastError();
@@ -34,6 +25,9 @@ void Data::_load()
             LOG_ERROR("fail to load tick data with err = {}", err.text().toStdString());
             return;
         }
+
+        QString strkDay;
+        QVector<std::tuple<QDate, double, double, double>> kVolumes;
 
         this->mds().clear();
         while (query.next())
@@ -83,14 +77,24 @@ void Data::_load()
             md.turnover = query.value(39).toDouble();
             md.action_ms = query.value(40).toDouble();
 
+            // day change update k line
+            if (strkDay != query.value(3).toString())
+            {
+                strkDay = query.value(3).toString();
+                QDate day = QDate::fromString(strkDay, "yyyyMMdd");
+                kVolumes.push_back(std::make_tuple(day, md.volume, md.open_price, md.close_price));
+            }
             LOG_DEBUG("load tick data with: {}", fmtMarketData(md));
             this->m_mds.push_back(md);
         }
-        emit sigDataUpdated();
+
+        // draw day K line
+        LOG_DEBUG("emit sigkVolumeChg");
+        emit sigkVolumeChg(kVolumes);
     });
 }
 
-void Data::_save()
+void Data::save()
 {
     // DB::instance()->exec("INSERT INTO tick ;", [this](QSqlQuery& query){
     //     auto err = query.lastError();

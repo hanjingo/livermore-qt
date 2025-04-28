@@ -45,6 +45,10 @@ set(PROJECT_SOURCES
         data.cpp
         util.h
         util.cpp
+        showdetail.h
+        showdetail.cpp
+        klinegrid.h
+        klinegrid.cpp
 )
 
 set(3RD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../3rd)
