@@ -5,10 +5,7 @@
 #include <QString>
 #include <QDate>
 
-#include "autogrid.h"
-#include "showdetail.h"
-
-class ShowDetail;
+#include "libqt/ui/autogrid.h"
 
 struct kLine
 {
@@ -75,8 +72,6 @@ private:
     void calcOther();
 
 private:
-    ShowDetail* m_showDetail;
-
     // date time
     QDate m_beginDay;
     QDate m_endDay;

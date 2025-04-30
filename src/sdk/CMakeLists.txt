@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.19.2)
 
+project(livermore-sdk LANGUAGES CXX)
+
 # Version Info
 set(LIVERMORE_SDK_VERSION_MAJOR 0)
 set(LIVERMORE_SDK_VERSION_MINOR 0)
@@ -7,18 +9,18 @@ set(LIVERMORE_SDK_VERSION_PATCH 1)
 set(LIVERMORE_SDK_VERSION ${LIVERMORE_SDK_VERSION_MAJOR}.${LIVERMORE_SDK_VERSION_MINOR}.${LIVERMORE_SDK_VERSION_PATCH})
 
 # Project Info
-set(PACKAGE_NAME      "livermore-sdk")
+set(PACKAGE_NAME      "${PROJECT_NAME}")
 set(PACKAGE_VERSION   "${LIVERMORE_SDK_VERSION}-dev")
 set(PACKAGE_TARNAME   "${PACKAGE_NAME}-${PACKAGE_VERSION}")
 set(PACKAGE_BUGREPORT "https://github.com/hanjingo/livermore-qt/issues")
-
-project(livermore-sdk LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_definitions(-DUSE_DEEP_DATA=true) # Use Deep Market Data
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
@@ -28,8 +30,7 @@ include_directories(${3RD_DIR}/libcpp)
 
 set(PROJECT_SOURCES
     livermoresdk.h
-    error.h
-    market_data.h
+    livermoresdk.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED

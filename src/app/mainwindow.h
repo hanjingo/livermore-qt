@@ -2,7 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "autogrid.h"
+#include <QButtonGroup>
+#include <QSplitter>
+#include <QDockWidget>
+#include "libqt/ui/autogrid.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -19,7 +22,23 @@ public:
     ~MainWindow();
 
 private:
+    void initUI();
+
+private slots:
+    void pageBtnClicked(int idx);
+
+private:
     Ui::MainWindow* ui;
-    AutoGrid* pgrid;
+
+    AutoGrid*    m_kVolume;
+    AutoGrid*    m_kLine;
+    QWidget*     m_canvas;
+    QDockWidget* m_detail;
+
+    QButtonGroup* m_pageBtnGroup;
+
+    QSplitter*    m_splitMain;
+    QSplitter*    m_splitLeftUp;
+    QSplitter*    m_splitLeftDown;
 };
 #endif // MAINWINDOW_H

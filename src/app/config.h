@@ -7,6 +7,8 @@
 #include <QDir>
 #include <QSettings>
 
+#include "libcpp/os/dll.h"
+
 class Config : public QObject
 {
     Q_OBJECT
@@ -20,7 +22,13 @@ public:
         return inst;
     }
 
+    inline QString sdkPath()     { return m_setting.value("sdk_path", "liblivermore-sdk").toString() + DLL_EXT; }
+
     inline int     logLvl()      { return m_setting.value("log_lvl", 1).toInt(); }
+    inline QString logPath()     { return m_setting.value("log_path", "./log").toString(); }
+    inline int     logSize()     { return m_setting.value("log_size", 2).toInt(); }
+    inline int     logFileNum()  { return m_setting.value("log_file_num", 5).toInt(); }
+    inline bool    logIsRotate() { return m_setting.value("log_rotate_on_open", true).toBool(); }
 
     inline QString dbDriver()    { return m_setting.value("db_driver", "QSQLITE").toString(); }
     inline QString dbMain()      { return m_setting.value("db_main", "tick").toString(); }

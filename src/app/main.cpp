@@ -2,18 +2,26 @@
 #include <QTranslator>
 
 #include "config.h"
-#include "db.h"
 #include "data.h"
+#include "handler.h"
 #include "mainwindow.h"
 
 #include "libcpp/log/logger.hpp"
 #include "libcpp/os/env.h"
 
+#include "libqt/db/dbconnpool.h"
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    // set log
+    // init log
+    libcpp::logger::instance()->add_sink(
+        libcpp::logger::create_rotate_file_sink(
+            Config::instance()->logPath().toStdString(),
+            Config::instance()->logSize(),
+            Config::instance()->logFileNum(),
+            Config::instance()->logIsRotate()));
     libcpp::logger::instance()->set_level(static_cast<libcpp::log_lvl>(Config::instance()->logLvl()));
 
     // translator
@@ -28,8 +36,18 @@ int main(int argc, char *argv[])
     LOG_INFO("livermore-qt email {}", "hehehunanchina@live.com");
 
     // init database
+    DBConnPool::instance()->setFactoryFn([]()->QSqlDatabase{
+        auto db = QSqlDatabase::addDatabase(Config::instance()->dbDriver(), Data::dbID());
+        db.setDatabaseName(Config::instance()->dbPath());
+        if (!db.open())
+            LOG_WARN("FAIL TO CREATE DB CONN");
+        else
+            LOG_INFO("create db conn succ");
+        return db;
+    });
+    DBConnPool::instance()->setConnNum(Config::instance()->dbMaxConn());
     if (Config::instance()->dbAsyncExec())
-        DB::instance()->setThreadPool(QThreadPool::globalInstance());
+        DBConnPool::instance()->setThreadPool(QThreadPool::globalInstance());
     QString sql(
 R"(CREATE TABLE IF NOT EXISTS "tick" (
   "action_time" text,
@@ -65,7 +83,7 @@ R"(CREATE TABLE IF NOT EXISTS "tick" (
   "ask_volume5" NUMBER,
   "ask_price5" NUMBER
 );)");
-    DB::instance()->exec(sql, [sql](QSqlQuery& query){
+    DBConnPool::instance()->exec(sql, [sql](QSqlQuery& query){
         auto err = query.lastError();
         if(!err.text().isEmpty())
             LOG_ERROR("fail to init db with err = {}, sql={}",
@@ -77,7 +95,11 @@ R"(CREATE TABLE IF NOT EXISTS "tick" (
     w.show();
 
     // repaint kvolumegrid
-    Data::instance()->load();
+    Data::instance()->load(QDateTime::fromString("20250421", "yyyyMMdd"));
+
+    // // load sdk
+    // Handler::instance()->init();
+    // emit Handler::instance()->sigInitSDK();
     
     LOG_INFO("livermore-qt running");
     return a.exec();

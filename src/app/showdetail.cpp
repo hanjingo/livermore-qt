@@ -4,7 +4,7 @@
 #include <QPainter>
 #include <QFont>
 
-ShowDetail::ShowDetail(QWidget* parent) : QDialog(parent)
+ShowDetail::ShowDetail(QWidget* parent) : QDockWidget(parent)
 {
 
     QFont ft;

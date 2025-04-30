@@ -6,8 +6,7 @@
 #include <QDockWidget>
 #include <QDialog>
 
-//class ShowDetail : public QDockWidget
-class ShowDetail : public QDialog
+class ShowDetail : public QDockWidget
 {
     Q_OBJECT
 

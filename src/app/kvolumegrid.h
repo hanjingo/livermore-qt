@@ -1,7 +1,7 @@
 #ifndef KVOLUMEGRID_H
 #define KVOLUMEGRID_H
 
-#include "autogrid.h"
+#include "libqt/ui/autogrid.h"
 
 #include <QPoint>
 #include <QDate>

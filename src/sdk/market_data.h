@@ -1,10 +1,6 @@
 #ifndef MARKET_DATA_H
 #define MARKET_DATA_H
 
-#ifndef L2
-#define L2
-#endif
-
 extern "C" 
 {
 
@@ -21,11 +17,10 @@ typedef char   md_instrument_name_t[21];
 #pragma pack(push, 8)
 struct market_data
 {
-    md_instrument_id_t   instrument_id;        // contract code
-    md_instrument_name_t instrument_name;      // contract name
-    md_exchange_id_t     exchange_id;          // exchange
     md_date_t            trading_day;          // trading day
-    md_time_t            action_time;          // operation time
+    md_instrument_name_t instrument_name;      // contract name
+    md_instrument_id_t   instrument_id;        // contract code
+    md_exchange_id_t     exchange_id;          // exchange
     md_price_t           last_price;           // last price
     md_price_t           pre_close_price;      // closing price on the preceding trading day
     md_price_t           open_price;           // opening price
@@ -37,7 +32,7 @@ struct market_data
     md_price_t           upper_limit_price;    // limit up price
     md_price_t           lower_limit_price;    // limit down price
     md_price_t           average_price;        // trading-volume-weighted average execution price
-#ifdef L2
+#ifdef USE_DEEP_DATA
     md_price_t           bid_price1;
     md_price_t           ask_price1;
     md_price_t           bid_price2;
@@ -63,6 +58,7 @@ struct market_data
     md_volume_t          pre_open_interest;  // open interest on the preceding trading day
     md_volume_t          open_interest;      // open interest on the current trading day
     md_money_t           turnover;           // notional value
+    md_time_t            action_time;        // operation time
     md_millisec_t        action_ms;          // operation time milliseconds
 };
 #pragma pack(pop)

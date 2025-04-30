@@ -1,15 +1,38 @@
 #ifndef LIVERMORESDK_H
 #define LIVERMORESDK_H
 
+#include <stdarg.h>
+
 #include "libcpp/os/dll.h"
-#include "error.h"
 
-// DLL_EXPORT int connect(const char* ip, const int port);
+// error code define
+enum err : unsigned long
+{
+    ok = 0,
+    err_fail,
+    err_cmd_not_exist,
 
-// DLL_EXPORT int subscribe(const char* topic);
+    err_end,
+};
 
-// DLL_EXPORT int unsubscribe(const char* topic);
+// command define
+enum cmd : unsigned long
+{
+    cmd_init_sdk = 0,
 
-// DLL_EXPORT int disconnect();
+    cmd_end,
+};
+
+// glob callback array
+static void* callbacks[cmd_end];
+
+// define api callback function style
+typedef void (* cb_init)(err);
+
+
+// interface for client
+C_STYLE_EXPORT err register_cb(cmd api, void* fn);
+
+C_STYLE_EXPORT err exec(cmd api, ...);
 
 #endif

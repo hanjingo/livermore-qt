@@ -14,17 +14,10 @@
 KLineGrid::KLineGrid(QWidget *parent) : AutoGrid(parent)
 {
     setMouseTracking(true);
-
-    m_showDetail = new ShowDetail(this);
-    m_showDetail->setModal(false);
-    m_showDetail->setFixedSize(140, 700);
-    m_showDetail->show();
 }
 
 KLineGrid::~KLineGrid()
 {
-    delete m_showDetail;
-    m_showDetail = nullptr;
 }
 
 void KLineGrid::kLineChg(QVector<std::tuple<QDate, double, double, double, double, double, double>>& data)
