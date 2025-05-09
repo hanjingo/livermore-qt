@@ -23,6 +23,10 @@ public:
 
 private:
     void initUI();
+    void drawMain();
+    void drawLeft();
+    void drawRight1();
+    void drawRight2();
 
 private slots:
     void pageBtnClicked(int idx);
@@ -30,15 +34,27 @@ private slots:
 private:
     Ui::MainWindow* ui;
 
-    AutoGrid*    m_kVolume;
-    AutoGrid*    m_kLine;
-    QWidget*     m_canvas;
-    QDockWidget* m_detail;
+    AutoGrid*     m_kVolume;
+    AutoGrid*     m_kLine;
+    QWidget*      m_tmDivision;
+    QDockWidget*  m_detail;
 
     QButtonGroup* m_pageBtnGroup;
 
+    // layout
     QSplitter*    m_splitMain;
+    // left
+    QSplitter*    m_splitLeft;
+    QSplitter*    m_splitLeftTopBtn;
     QSplitter*    m_splitLeftUp;
     QSplitter*    m_splitLeftDown;
+    // right1
+    QSplitter*    m_splitRight1;
+    QSplitter*    m_splitRight1Tick;
+    QSplitter*    m_splitRight1Detail;
+    QSplitter*    m_splitRight1Bid;
+    // right2
+    QSplitter*    m_splitRight2;
+    QSplitter*    m_splitRight2News;
 };
 #endif // MAINWINDOW_H

@@ -31,6 +31,8 @@ include_directories(${3RD_DIR}/libcpp)
 set(PROJECT_SOURCES
     livermoresdk.h
     livermoresdk.cpp
+    tcp/tcpclient.h
+    tcp/tcpclient.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED

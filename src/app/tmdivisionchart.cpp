@@ -1,4 +1,4 @@
-#include "stockcanvas.h"
+#include "tmdivisionchart.h"
 
 #include <QDebug>
 #include <QPen>
@@ -7,7 +7,7 @@
 
 #include "libcpp/log/logger.hpp"
 
-StockCanvas::StockCanvas(QWidget *parent) : QWidget(parent)
+TimeDivision::TimeDivision(QWidget *parent) : QWidget(parent)
 {
     this->setAutoFillBackground(true);
     QPalette palette;
@@ -16,9 +16,9 @@ StockCanvas::StockCanvas(QWidget *parent) : QWidget(parent)
     setMouseTracking(true);
 }
 
-void StockCanvas::tickChg(QVector<std::tuple<double, double>>& data)
+void TimeDivision::tickChg(QVector<std::tuple<double, double>>& data)
 {
-    LOG_DEBUG("on tickChg");
+    LOG_DEBUG("tickChg");
     if (data.isEmpty())
         return;
 
@@ -50,20 +50,20 @@ void StockCanvas::tickChg(QVector<std::tuple<double, double>>& data)
     m_priceRate = (UpRate > DnRate) ? UpRate : DnRate;
 }
 
-void StockCanvas::paintEvent(QPaintEvent *event)
+void TimeDivision::paintEvent(QPaintEvent *event)
 {
     drawBK();
     drawMouseLine();
-    drawTimeTblChart();
+    drawTimeDivision();
 }
 
-void StockCanvas::resizeEvent(QResizeEvent *event)
+void TimeDivision::resizeEvent(QResizeEvent *event)
 {
     m_windowHeight = this->height();
     m_windowWidth = this->width();
 }
 
-void StockCanvas::drawBorder()
+void TimeDivision::drawBorder()
 {
     QPainter painter(this);
     QPen     pen;
@@ -80,7 +80,7 @@ void StockCanvas::drawBorder()
                      m_windowWidth - BORDER_SIZE, m_windowHeight - BORDER_SIZE); //bottom -
 }
 
-void StockCanvas::drawBK()
+void TimeDivision::drawBK()
 {
 
     QPainter painter(this);
@@ -135,7 +135,7 @@ void StockCanvas::drawBK()
     }
 }
 
-void StockCanvas:: mouseMoveEvent(QMouseEvent* event)
+void TimeDivision:: mouseMoveEvent(QMouseEvent* event)
 {
     m_mousePoint = QPoint(event->pos());
     m_xGridMin = BORDER_SIZE+COORDINATE_X1;
@@ -150,7 +150,7 @@ void StockCanvas:: mouseMoveEvent(QMouseEvent* event)
     update();
 }
 
-void StockCanvas::drawMouseLine()
+void TimeDivision::drawMouseLine()
 {
     QLineF linex(0 + BORDER_SIZE + COORDINATE_X1, m_mousePoint.y(), this->width() - (BORDER_SIZE + COORDINATE_X1), m_mousePoint.y());
     QLineF liney(m_mousePoint.x(), BORDER_SIZE + COORDINATE_Y1, m_mousePoint.x(), this->height() - (BORDER_SIZE + COORDINATE_Y2));
@@ -165,7 +165,7 @@ void StockCanvas::drawMouseLine()
 }
 
 // draw time table chart
-void StockCanvas::drawTimeTblChart()
+void TimeDivision::drawTimeDivision()
 {
     QPainter painter(this);
     QPen     pen;
@@ -266,7 +266,7 @@ void StockCanvas::drawTimeTblChart()
     drawTips();
 }
 
-void StockCanvas::setLSpace(QString &str, int n)
+void TimeDivision::setLSpace(QString &str, int n)
 {
     for(int i = 0; i < n; i++)
     {
@@ -274,7 +274,7 @@ void StockCanvas::setLSpace(QString &str, int n)
     }
 }
 
-void StockCanvas::drawTips()
+void TimeDivision::drawTips()
 {
     double temp = m_mousePoint.y() - BORDER_SIZE - COORDINATE_Y1 - 5 * m_yInterval;
     double y_val = - temp * (m_priceStart * m_priceRate) / (5 * m_yInterval) + m_priceStart;

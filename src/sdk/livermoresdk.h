@@ -24,15 +24,14 @@ enum cmd : unsigned long
 };
 
 // glob callback array
-static void* callbacks[cmd_end];
-
-// define api callback function style
-typedef void (* cb_init)(err);
-
+static void* callbacks_[cmd_end];
 
 // interface for client
 C_STYLE_EXPORT err register_cb(cmd api, void* fn);
 
 C_STYLE_EXPORT err exec(cmd api, ...);
+
+// define api callback function style
+typedef void (* cb_init)(err);
 
 #endif

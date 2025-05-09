@@ -54,8 +54,8 @@ set(PROJECT_SOURCES
         showdetail.cpp
         klinegrid.h
         klinegrid.cpp
-        stockcanvas.h
-        stockcanvas.cpp
+        tmdivisionchart.h
+        tmdivisionchart.cpp
         ${LIBQT}/libqt/db/dbconnpool.h
         ${LIBQT}/libqt/db/dbconnpool.cpp
         ${LIBQT}/libqt/ui/autogrid.h

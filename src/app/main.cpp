@@ -14,6 +14,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    LOG_INFO("main function enter");
 
     // init log
     libcpp::logger::instance()->add_sink(
@@ -34,6 +35,10 @@ int main(int argc, char *argv[])
     LOG_INFO("livermore-qt {}.{}.{}", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
     LOG_INFO("livermore-qt compile time {}", COMPILE_TIME);
     LOG_INFO("livermore-qt email {}", "hehehunanchina@live.com");
+
+    // show main window
+    MainWindow w;
+    w.show();
 
     // init database
     DBConnPool::instance()->setFactoryFn([]()->QSqlDatabase{
@@ -90,16 +95,12 @@ R"(CREATE TABLE IF NOT EXISTS "tick" (
                         err.text().toStdString(), sql.toStdString());
     });
 
-    // show main window
-    MainWindow w;
-    w.show();
-
     // repaint kvolumegrid
     Data::instance()->load(QDateTime::fromString("20250421", "yyyyMMdd"));
 
-    // // load sdk
-    // Handler::instance()->init();
-    // emit Handler::instance()->sigInitSDK();
+    // load sdk
+    Handler::instance()->init();
+    emit Handler::instance()->sigInitSDK();
     
     LOG_INFO("livermore-qt running");
     return a.exec();

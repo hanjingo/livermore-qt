@@ -48,7 +48,7 @@ void Handler::init()
     Handler::instance()->reg(cmd_init_sdk, onSDKInit);
 
     // bind connect
-    connect(this, SIGNAL(Handler::sigInitSDK()), this, SLOT(Handler::initSDK()));
+    connect(this, SIGNAL(sigInitSDK()), this, SLOT(initSDK()));
 }
 
 template<typename F>

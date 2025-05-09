@@ -1,5 +1,5 @@
-#ifndef STOCKCANVAS_H
-#define STOCKCANVAS_H
+#ifndef TMDIVISIONCHART_H
+#define TMDIVISIONCHART_H
 
 #include <QWidget>
 #include <QMouseEvent>
@@ -18,11 +18,11 @@ struct TickData {
     double volume;
 };
 
-class StockCanvas : public QWidget
+class TimeDivision : public QWidget
 {
     Q_OBJECT
 public:
-    explicit StockCanvas(QWidget *parent = 0);
+    explicit TimeDivision(QWidget *parent = 0);
 
 private:
     void virtual paintEvent(QPaintEvent* event);
@@ -33,7 +33,7 @@ private:
     void setLSpace( QString& str, int n );
     void drawTips();
     void drawBorder();
-    void drawTimeTblChart();
+    void drawTimeDivision();
 
 private slots:
     // [{price,volume}, ...]
@@ -69,4 +69,4 @@ signals:
 public slots:
 };
 
-#endif // STOCKCANVAS_H
+#endif // TMDIVISIONCHART_H
