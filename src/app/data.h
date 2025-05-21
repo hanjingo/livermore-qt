@@ -38,7 +38,7 @@ public:
     void clear();
     void update();
 
-    void onTickNtf(market_data** mds, const int len);
+    void onTickNtf(int num, market_data** mds);
 
 signals:
     // [{tradingDay,volume,openPrice,closePrice}, ...]

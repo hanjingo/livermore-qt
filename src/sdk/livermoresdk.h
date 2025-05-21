@@ -11,6 +11,9 @@ enum err : unsigned long
     ok = 0,
     err_fail,
     err_cmd_not_exist,
+    err_dial_timeout,
+    err_tcp_broker_already_connected,
+    err_broker_not_connected,
 
     err_end,
 };
@@ -18,20 +21,20 @@ enum err : unsigned long
 // command define
 enum cmd : unsigned long
 {
-    cmd_init_sdk = 0,
+    cmd_start = 0xFF,
+    cmd_init_sdk,
+    cmd_dial_broker,
+    cmd_close_broker,
+    cmd_md_ntf,
+    cmd_md_sub,
+    cmd_quit_sdk,
 
     cmd_end,
 };
-
-// glob callback array
-static void* callbacks_[cmd_end];
 
 // interface for client
 C_STYLE_EXPORT err register_cb(cmd api, void* fn);
 
 C_STYLE_EXPORT err exec(cmd api, ...);
-
-// define api callback function style
-typedef void (* cb_init)(err);
 
 #endif

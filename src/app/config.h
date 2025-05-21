@@ -22,8 +22,6 @@ public:
         return inst;
     }
 
-    inline QString sdkPath()     { return m_setting.value("sdk_path", "liblivermore-sdk").toString() + DLL_EXT; }
-
     inline int     logLvl()      { return m_setting.value("log_lvl", 1).toInt(); }
     inline QString logPath()     { return m_setting.value("log_path", "./log").toString(); }
     inline int     logSize()     { return m_setting.value("log_size", 2).toInt(); }
@@ -37,6 +35,10 @@ public:
     inline bool    dbAsyncExec() { return m_setting.value("db_async_exec", 1).toInt() == 1; }
 
     inline QString qmPath()      { return m_setting.value("qm_path", "./kstock.qm").toString(); }
+
+    inline QString sdkPath()     { return m_setting.value("sdk_path", "liblivermore-sdk").toString() + DLL_EXT; }
+    inline QString brokerIp()    { return m_setting.value("broker_ip", "172.16.255.130").toString(); }
+    inline unsigned long brokerPort()  { return m_setting.value("broker_port", 10086).toInt(); }
 private:
     QSettings m_setting;
 };

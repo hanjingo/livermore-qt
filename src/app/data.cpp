@@ -164,15 +164,11 @@ void Data::update()
     emit sigTickChg(ticks);
 }
 
-void Data::onTickNtf(market_data** mds, const int len)
+void Data::onTickNtf(int num, market_data** mds)
 {
-    QVector<std::tuple<double, double>> ticks;
-    for (int i = 0; i < len; ++i)
+    for (int i = 0; i < num; ++i)
     {
         m_mds.append(mds[i]);
-
-        ticks.push_back(std::make_tuple(mds[i]->settlement_price,
-                                        mds[i]->volume));
     }
 
     this->update();

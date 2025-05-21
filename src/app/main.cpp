@@ -98,10 +98,11 @@ R"(CREATE TABLE IF NOT EXISTS "tick" (
     // repaint kvolumegrid
     Data::instance()->load(QDateTime::fromString("20250421", "yyyyMMdd"));
 
-    // load sdk
+    // load sdk: init->dial->sub topic
     Handler::instance()->init();
-    emit Handler::instance()->sigInitSDK();
     
     LOG_INFO("livermore-qt running");
     return a.exec();
+
+    qDebug() << "fuck9";
 }

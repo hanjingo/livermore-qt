@@ -60,6 +60,7 @@ set(PROJECT_SOURCES
         ${LIBQT}/libqt/db/dbconnpool.cpp
         ${LIBQT}/libqt/ui/autogrid.h
         ${LIBQT}/libqt/ui/autogrid.cpp
+        ${LIBQT}/libqt/core/crash.h
 )
 
 include_directories(${LIBCPP})

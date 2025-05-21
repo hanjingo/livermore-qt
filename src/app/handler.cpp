@@ -1,63 +1,65 @@
 #include "handler.h"
-#include "config.h"
 #include "util.h"
 
-#include "libcpp/log/logger.hpp"
-#include "libcpp/os/env.h"
-#include "libcpp/util/once.hpp"
+#include "data.h"
 
-// void regCallback()
-// {
-//     RegisterCB(cmd_init, reinterpret_cast<void*>(onInit));
-// }
+#include <QVector>
+#include <QString>
 
 void onSDKInit(err e)
 {
-    LOG_DEBUG("on sdk init ret={}", errWhat(e).toStdString());
-}
-
-
-// ------------------------ handler obj ----------------------------
-Handler::Handler(QObject *p)
-    : m_fnRegisterCB{nullptr}
-    , m_fnExec{nullptr}
-    , m_bInit{false}
-{
-}
-
-Handler::~Handler()
-{}
-
-void Handler::init()
-{
-    if (m_bInit)
+    LOG_DEBUG("onSDKInit with e={}", errWhat(e).toStdString());
+    if (e != ok)
         return;
 
-    m_bInit = true;
-    LOG_DEBUG("load sdk with path={}", Config::instance()->sdkPath().toStdString());
-    auto sdk = dll_open(Config::instance()->sdkPath().toStdString().c_str(), DLL_RTLD_NOW);
-    if (sdk == nullptr)
+    Handler::instance()->call(cmd_dial_broker,
+                              Config::instance()->brokerIp().toStdString().c_str(),
+                              Config::instance()->brokerPort());
+}
+
+void onDialBroker(err e, char* ip, unsigned long port)
+{
+    LOG_DEBUG("onDialBroker with e={}, ip={}, port={}",
+              errWhat(e).toStdString(), ip, port);
+    if (e != ok)
+        return;
+
+    // for test
+    Handler::instance()->call(cmd_md_sub, "sz002030");
+}
+
+void onCloseBroker(err e, char* ip, unsigned long port)
+{
+    LOG_DEBUG("onCloseBroker with e={}, ip={}, port={}",
+              errWhat(e).toStdString(), ip, port);
+    if (e != ok)
+        return;
+}
+
+void onMdNtf(int num, market_data** mds)
+{
+    LOG_DEBUG("onMdNtf with num={}", num);
+
+    // write database
+    Data::instance()->onTickNtf(num, mds);
+}
+
+void onSub(int result, int num, char** args)
+{
+    QString topics;
+    for (int i = 0; i < num; ++i)
     {
-        LOG_CRITICAL("FAIL TO LOAD SDK WITH PATH={}", Config::instance()->sdkPath().toStdString());
-        return;
+        topics.append(QString(args[i]));
+        topics.append(",");
     }
-    m_fnRegisterCB = (err(*)(cmd, void*))dll_get(sdk, "register_cb");
-    m_fnExec = (err(*)(cmd, ...))dll_get(sdk, "exec");
-
-    // register callback
-    Handler::instance()->reg(cmd_init_sdk, onSDKInit);
-
-    // bind connect
-    connect(this, SIGNAL(sigInitSDK()), this, SLOT(initSDK()));
+    LOG_DEBUG("onSub with result={}, num={}, topics={}", result, num, topics.toStdString());
 }
 
-template<typename F>
-void Handler::reg(cmd api, F f)
+void onQuitSDK(err e)
 {
-    m_fnRegisterCB(api, reinterpret_cast<void*>(f));
-}
+    LOG_DEBUG("onQuitSDK with e={}", errWhat(e).toStdString());
 
-void Handler::initSDK()
-{
-    m_fnExec(cmd_init_sdk);
+    Handler::instance()->unloadSDK();
+
+    LOG_DEBUG("onQuitSDK end");
 }

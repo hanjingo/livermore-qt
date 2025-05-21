@@ -101,6 +101,21 @@
     </message>
     <message>
         <location filename="../src/app/util.cpp" line="12"/>
+        <source>err_dial_timeout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/app/util.cpp" line="13"/>
+        <source>err_tcp_broker_already_connected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/app/util.cpp" line="14"/>
+        <source>err_broker_not_connected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/app/util.cpp" line="15"/>
         <source>unknow_err</source>
         <translation type="unfinished"></translation>
     </message>

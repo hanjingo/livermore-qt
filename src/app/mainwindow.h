@@ -5,7 +5,11 @@
 #include <QButtonGroup>
 #include <QSplitter>
 #include <QDockWidget>
+#include <QCloseEvent>
+#include <QThread>
 #include "libqt/ui/autogrid.h"
+
+#include "handler.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -27,6 +31,15 @@ private:
     void drawLeft();
     void drawRight1();
     void drawRight2();
+
+    void closeEvent(QCloseEvent *event) override
+    {
+        qDebug() << "fuck1 event=nullptr ? " << (event == nullptr);
+        Handler::instance()->quit();
+        qDebug() << "fuck2";
+        event->accept();
+        qDebug() << "fuck3";
+    }
 
 private slots:
     void pageBtnClicked(int idx);
