@@ -11,15 +11,6 @@
 
 #include "libcpp/log/logger.hpp"
 
-// ------------------------ cmd callback ----------------------------
-void onSDKInit(err);
-void onDialBroker(err, char*, unsigned long);
-void onCloseBroker(err, char*, unsigned long);
-void onMdNtf(int num, market_data** mds);
-void onSub(int result, int num, char** args);
-void onQuitSDK(err);
-
-// ------------------------ handler obj ----------------------------
 class Handler : public QObject
 {
     Q_OBJECT
@@ -48,8 +39,8 @@ public:
             return;
 
         m_bLoaded = true;
-        LOG_DEBUG("load sdk with path={}", Config::instance()->sdkPath().toStdString());
         m_sdk = dll_open(Config::instance()->sdkPath().toStdString().c_str(), DLL_RTLD_NOW);
+        LOG_DEBUG("load sdk with m_sdk={}, path={}", m_sdk, Config::instance()->sdkPath().toStdString());
         if (m_sdk == nullptr)
         {
             LOG_CRITICAL("FAIL TO LOAD SDK WITH PATH={}", Config::instance()->sdkPath().toStdString());
@@ -59,12 +50,12 @@ public:
         m_fnExec = (err(*)(cmd, ...))dll_get(m_sdk, "exec");
 
         // register callback
-        reg(cmd_init_sdk, onSDKInit);
-        reg(cmd_dial_broker, onDialBroker);
-        reg(cmd_close_broker, onCloseBroker);
-        reg(cmd_md_ntf, onMdNtf);
-        reg(cmd_md_sub, onSub);
-        reg(cmd_quit_sdk, onQuitSDK);
+        reg(cmd_init_sdk, &Handler::onSDKInit);
+        reg(cmd_dial_broker, &Handler::onDialBroker);
+        reg(cmd_close_broker, &Handler::onCloseBroker);
+        reg(cmd_md_ntf, &Handler::onMdNtf);
+        reg(cmd_md_sub, &Handler::onSub);
+        reg(cmd_quit_sdk, &Handler::onQuitSDK);
 
         // init sdk
         Handler::instance()->call(cmd_init_sdk);
@@ -74,8 +65,12 @@ public:
     void reg(cmd api, F f)
     {
         if (m_fnRegisterCB == nullptr)
+        {
+            LOG_WARN("register not exist");
             return;
+        }
 
+        LOG_DEBUG("reg api={}", int(api));
         m_fnRegisterCB(api, reinterpret_cast<void*>(f));
     }
 
@@ -98,18 +93,27 @@ public:
         if (!m_bLoaded)
             return;
 
-        qDebug() << "unloadSDK start";
+        LOG_DEBUG("DLL CLOSE WITH m_sdk={}", m_sdk);
         m_bLoaded = false;
         if (m_sdk != nullptr)
-            dll_close(m_sdk);
+        {
+            auto ret = dll_close(m_sdk);
+            LOG_DEBUG("DLL CLOSE RET={}", ret);
+        }
 
+        LOG_DEBUG("DLL CLOSED");
         m_sdk = nullptr;
         m_fnRegisterCB = nullptr;
         m_fnExec = nullptr;
-        qDebug() << "unloadSDK end";
     }
 
-signals:
+private:
+    static void onSDKInit(err);
+    static void onDialBroker(err, char*, unsigned long);
+    static void onCloseBroker(err, char*, unsigned long);
+    static void onMdNtf(int num, market_data** mds);
+    static void onSub(int result, int num, char** args);
+    static void onQuitSDK(err);
 
 private:
     bool m_bLoaded;

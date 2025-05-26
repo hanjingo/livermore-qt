@@ -34,11 +34,8 @@ private:
 
     void closeEvent(QCloseEvent *event) override
     {
-        qDebug() << "fuck1 event=nullptr ? " << (event == nullptr);
         Handler::instance()->quit();
-        qDebug() << "fuck2";
         event->accept();
-        qDebug() << "fuck3";
     }
 
 private slots:

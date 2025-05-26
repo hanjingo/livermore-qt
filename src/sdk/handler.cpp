@@ -18,6 +18,7 @@ err register_cb(cmd api, void* fn)
 
 err exec(cmd api, ...)
 {
+    LOG_DEBUG("Exec api={}", int(api));
     switch(api)
     {
     case cmd_init_sdk:
@@ -79,54 +80,61 @@ Handler::~Handler()
 
 void Handler::init()
 {
+    LOG_DEBUG("SDK: init");
+    if (m_callbacks[cmd_init_sdk] == nullptr)
+        return;
+
     auto cb = (void(*)(err))(m_callbacks[cmd_init_sdk]);
     cb(ok);
 }
 
 void Handler::dialBroker(char* ip, unsigned long port)
 {
-    auto cb = (void(*)(err, char*, unsigned long))(m_callbacks[cmd_dial_broker]);
-
-    LOG_DEBUG("dial broker with ip={}, port={}", ip, port);
+    LOG_DEBUG("SDK: dial broker with ip={}, port={}", ip, port);
     auto broker = new Broker();
-    auto err = broker->dial(ip, port, 2000);
-    if (err != ok)
+    auto ret = broker->dial(ip, port, 2000);
+    if (ret != ok)
     {
         delete broker;
-        cb(err, ip, port);
-        return;
+    } else {
+        connect(broker, SIGNAL(mdNtf(int, market_data**)), this, SLOT(onMdNtf(int, market_data**)));
+        connect(broker, SIGNAL(subMdRsp(int, int, char**)), this, SLOT(onSubMdRsp(int, int, char**)));
+        m_brokers.insert(QString("%1:%2").arg(ip).arg(port), broker);
     }
 
-    connect(broker, SIGNAL(mdNtf(int, market_data**)), this, SLOT(onMdNtf(int, market_data**)));
-    connect(broker, SIGNAL(subMdRsp(int, int, char**)), this, SLOT(onSubMdRsp(int, int, char**)));
-    m_brokers.insert(QString("%1:%2").arg(ip).arg(port), broker);
-    cb(ok, ip, port);
+    if (m_callbacks[cmd_dial_broker] == nullptr)
+        return;
+    auto cb = (void(*)(err, char*, unsigned long))(m_callbacks[cmd_dial_broker]);
+    cb(ret, ip, port);
 }
 
 void Handler::closeBroker(char* ip, unsigned long port)
 {
-    auto cb = (void(*)(err, char*, unsigned long))(m_callbacks[cmd_close_broker]);
-
-    LOG_DEBUG("close broker with ip={}, port={}", ip, port);
+    LOG_DEBUG("SDK: close broker with ip={}, port={}", ip, port);
+    err e = ok;
     auto addr = QString("%1:%2").arg(ip).arg(port);
     if (!m_brokers.contains(addr))
     {
-        cb(err_broker_not_connected, ip, port);
-        return;
+        e = err_broker_not_connected;
+    } else {
+        auto broker = m_brokers[addr];
+        broker->close();
+        delete broker;
+        m_brokers.remove(addr);
     }
 
-    auto broker = m_brokers[addr];
-    broker->close();
-    delete broker;
-    m_brokers.remove(addr);
-    cb(ok, ip, port);
+    if (m_callbacks[cmd_close_broker] == nullptr)
+        return;
+    auto cb = (void(*)(err, char*, unsigned long))(m_callbacks[cmd_close_broker]);
+    cb(e, ip, port);
 }
 
 void Handler::onMdNtf(int num, market_data** mds)
 {
+    LOG_DEBUG("SDK: onMdNtf");
+    if (m_callbacks[cmd_md_ntf] == nullptr)
+        return;
     auto cb = (void(*)(int, market_data**))(m_callbacks[cmd_md_ntf]);
-
-    LOG_DEBUG("onMdNtf");
     cb(num, mds);
 }
 
@@ -141,16 +149,16 @@ void Handler::subMd(char* code)
 
 void Handler::onSubMdRsp(int result, int num, char** topics)
 {
+    LOG_DEBUG("SDK: onSubMdRsp with result={}, num={}", result, num);
+    if (m_callbacks[cmd_md_sub] == nullptr)
+        return;
     auto cb = (void(*)(int, int, char**))(m_callbacks[cmd_md_sub]);
-
-    LOG_DEBUG("onSubMdRsp with result={}, num={}", result, num);
     cb(result, num, topics);
 }
 
 void Handler::quit()
 {
-    auto cb = (void(*)(err))(m_callbacks[cmd_quit_sdk]);
-
+    LOG_DEBUG("SDK: quit");
     for (auto broker : m_brokers)
     {
         broker->close();
@@ -158,5 +166,23 @@ void Handler::quit()
     }
     m_brokers.clear();
 
-    return cb(ok);
+    if (m_callbacks[cmd_quit_sdk] == nullptr)
+        return;
+    auto cb = (void(*)(err))(m_callbacks[cmd_quit_sdk]);
+    cb(ok);
+
+    // remove registered handler
+    for (auto i = 0; i < cmd_end; ++i)
+        m_callbacks[i] = nullptr;
+
+    // remove broker
+    for (auto broker : m_brokers.values())
+    {
+        if (broker == nullptr)
+            continue;
+
+        broker->close();
+        delete broker;
+    }
+    m_brokers.clear();
 }

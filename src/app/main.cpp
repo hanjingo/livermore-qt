@@ -18,11 +18,11 @@ int main(int argc, char *argv[])
 
     // init log
     libcpp::logger::instance()->add_sink(
-        libcpp::logger::create_rotate_file_sink(
-            Config::instance()->logPath().toStdString(),
-            Config::instance()->logSize(),
-            Config::instance()->logFileNum(),
-            Config::instance()->logIsRotate()));
+       libcpp::logger::create_rotate_file_sink(
+           Config::instance()->logPath().toStdString(),
+           Config::instance()->logSize(),
+           Config::instance()->logFileNum(),
+           Config::instance()->logIsRotate()));
     libcpp::logger::instance()->set_level(static_cast<libcpp::log_lvl>(Config::instance()->logLvl()));
 
     // translator
@@ -103,6 +103,4 @@ R"(CREATE TABLE IF NOT EXISTS "tick" (
     
     LOG_INFO("livermore-qt running");
     return a.exec();
-
-    qDebug() << "fuck9";
 }

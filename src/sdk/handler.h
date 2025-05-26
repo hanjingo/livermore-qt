@@ -42,7 +42,7 @@ private slots:
 
 private:
     QMap<QString, Broker*> m_brokers;
-    void* m_callbacks[cmd_end];
+    void* m_callbacks[cmd_end] = {nullptr};
 };
 
 #endif

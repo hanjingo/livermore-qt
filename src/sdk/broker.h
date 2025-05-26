@@ -49,8 +49,9 @@ private:
     JsonMsg* constructMsg();
 
 private:
-    ObjPool<JsonMsg*> m_objs;
-    TcpClient*        m_cli;
+    ObjPool<JsonMsg*>     m_objs;
+    ObjPool<market_data*> m_mds;
+    TcpClient*            m_cli;
 };
 
 #endif

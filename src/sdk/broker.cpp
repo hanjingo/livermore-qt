@@ -5,11 +5,13 @@
 
 Broker::Broker(QObject *p)
     : m_objs{1024}
+    , m_mds{1024}
     , m_cli{new TcpClient()}
 {
     for (int i = 0; i < m_objs.capa(); ++i)
     {
         m_objs.giveback(new JsonMsg());
+        m_mds.giveback(new market_data());
     }
 }
 
@@ -18,8 +20,23 @@ Broker::~Broker()
     JsonMsg* msg = nullptr;
     while (m_objs.tryAcquire(msg))
     {
+        if (msg == nullptr)
+            continue;
+
         delete msg;
     }
+
+    market_data* md = nullptr;
+    while (m_mds.tryAcquire(md))
+    {
+        if (md == nullptr)
+            continue;
+
+        delete md;
+    }
+
+    delete m_cli;
+    m_cli = nullptr;
 }
 
 err Broker::dial(const QString& ip, const quint16 port, int ms)
@@ -53,6 +70,7 @@ err Broker::subMd(char* topic)
     obj.insert("topics", arr);
     msg->payload = obj;
     m_cli->writeMsg(msg);
+    return ok;
 }
 
 JsonMsg* Broker::constructMsg()
@@ -70,7 +88,7 @@ void Broker::onReadyRead()
     switch (js->id)
     {
     case msg_id_md_ntf: {
-        market_data* md = new market_data();
+        market_data* md = m_mds.acquire();
         json_to_md(js->payload, md);
         market_data* mds[1] = {md};
         emit this->mdNtf(1, mds);
@@ -82,9 +100,9 @@ void Broker::onReadyRead()
         char* topics[arr.count()];
         for (int i = 0; i < arr.count(); ++i)
         {
-            char* str;
-            strcpy(str, arr[i].toString().toStdString().c_str());
-            topics[i] = str;
+           char* str;
+           strcpy(str, arr[i].toString().toStdString().c_str());
+           topics[i] = str;
         }
         emit this->subMdRsp(result, arr.count(), topics);
         break;

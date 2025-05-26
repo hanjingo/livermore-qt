@@ -42,6 +42,7 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Network Concurrent)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Network Concurrent)
 
 set(PROJECT_SOURCES
+    main.cpp
     livermoresdk.h
     proto.h
     market_data.h
@@ -59,9 +60,12 @@ set(PROJECT_SOURCES
 include_directories(${LIBCPP})
 include_directories(${LIBQT})
 
-add_library(${PROJECT_NAME} SHARED
+add_executable(${PROJECT_NAME}
     ${PROJECT_SOURCES}
 )
+# add_library(${PROJECT_NAME} SHARED
+#     ${PROJECT_SOURCES}
+# )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     Qt${QT_VERSION_MAJOR}::Core
