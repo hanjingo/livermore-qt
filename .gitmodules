@@ -2,11 +2,3 @@
 	path = 3rd/libqt
 	url = git@github.com:hanjingo/libqt.git
 	branch = main
-[submodule "3rd/libcpp"]
-	path = 3rd/libcpp
-	url = git@github.com:hanjingo/libcpp.git
-	branch = main
-[submodule "3rd/spdlog"]
-	path = 3rd/spdlog
-	url = git@github.com:gabime/spdlog.git
-	branch = v1.x

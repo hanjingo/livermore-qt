@@ -9,7 +9,7 @@
 #include <QDockWidget>
 #include <QWidget>
 
-#include "libcpp/log/logger.hpp"
+#include <QDebug>
 
 KLineGrid::KLineGrid(QWidget *parent) : AutoGrid(parent)
 {
@@ -22,7 +22,7 @@ KLineGrid::~KLineGrid()
 
 void KLineGrid::kLineChg(QVector<std::tuple<QDate, double, double, double, double, double, double>>& data)
 {
-    LOG_DEBUG("on sigkLineChg");
+    qDebug() << "on sigkLineChg";
     m_data.clear();
     for (auto elem : data)
     {

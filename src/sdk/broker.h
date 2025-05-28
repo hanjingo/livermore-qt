@@ -8,6 +8,7 @@
 #include "livermoresdk.h"
 #include "proto.h"
 #include "market_data.h"
+
 #include "libqt/net/tcp/tcpclient.h"
 #include "libqt/core/objpool.h"
 
@@ -36,7 +37,7 @@ public:
 
     err dial(const QString& ip, const quint16 port, int ms);
     err close();
-    err subMd(char* topic);
+    err subMarketData(char* topic);
 
 private slots:
     void onReadyRead();

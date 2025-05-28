@@ -4,8 +4,7 @@
 #include <QPainter>
 #include <QPen>
 #include <QString>
-
-#include "libcpp/log/logger.hpp"
+#include <QDebug>
 
 kVolumeGrid::kVolumeGrid(QWidget* parent)
     : AutoGrid( parent)
@@ -20,7 +19,7 @@ kVolumeGrid::kVolumeGrid(QWidget* parent)
 
 void kVolumeGrid::kVolumeChg(QVector<std::tuple<QDate, double, double, double>>& data)
 {
-    LOG_DEBUG("on sigkVolumeChg");
+    qDebug()  << "on sigkVolumeChg";
     if (data.isEmpty())
         return;
 
@@ -75,7 +74,7 @@ void kVolumeGrid::drawYtick()
     pen.setColor(Qt::red);
     painter.setPen(pen);
     double ystep = m_maxVolume / getHGridNum();
-    // LOG_DEBUG("cal m_maxVolume={}, getHGridNum()={}, ystep={}", m_maxVolume, getHGridNum(), ystep);
+    // qDebug() << "cal m_maxVolume=" << m_maxVolume << ", getHGridNum()=" << getHGridNum() << ", ystep=" << ystep);
     QString str;
     for(int i = 0; i <= getHGridNum(); ++i)
     {
@@ -102,7 +101,7 @@ void kVolumeGrid::drawVolume()
 
         m_lineWidth = getGridWidth() / m_totalDay;
         m_lineWidth = m_lineWidth - 0.2 * m_lineWidth;
-        // LOG_DEBUG("getGridWidth()={}, m_totalDay={}, m_lineWidth={}", getGridWidth(), m_totalDay, m_lineWidth);
+        qDebug() << "getGridWidth()=" << getGridWidth() << ", m_totalDay=" << m_totalDay << ", m_lineWidth=" << m_lineWidth;
         if( m_lineWidth < 3)
             m_lineWidth = 3;
 

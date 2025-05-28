@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QPointer>
+#include <QString>
+#include <QStringList>
 
 #include "broker.h"
 #include "livermoresdk.h"
@@ -21,20 +23,11 @@ public:
         return inst;
     }
 
-    inline err reg(cmd api, void* fn)
-    {
-        if (api >= cmd_end)
-            return err_cmd_not_exist;
-
-        m_callbacks[api] = fn;
-        return ok;
-    }
-
-    void init();
-    void dialBroker(char* ip, unsigned long port);
-    void closeBroker(char* ip, unsigned long port);
-    void subMd(char* code);
-    void quit();
+    err init();
+    err dialBroker(const QString& ip, const unsigned long port);
+    err closeBroker(const QString& ip, const unsigned long port);
+    err subMarketData(const QStringList& code);
+    err quit();
 
 private slots:
     void onMdNtf(int, market_data**);
@@ -42,7 +35,6 @@ private slots:
 
 private:
     QMap<QString, Broker*> m_brokers;
-    void* m_callbacks[cmd_end] = {nullptr};
 };
 
 #endif

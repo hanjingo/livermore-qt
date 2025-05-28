@@ -5,8 +5,6 @@
 #include <QPainter>
 #include <QDateTime>
 
-#include "libcpp/log/logger.hpp"
-
 TimeDivision::TimeDivision(QWidget *parent) : QWidget(parent)
 {
     this->setAutoFillBackground(true);
@@ -18,7 +16,7 @@ TimeDivision::TimeDivision(QWidget *parent) : QWidget(parent)
 
 void TimeDivision::tickChg(QVector<std::tuple<double, double>>& data)
 {
-    LOG_DEBUG("tickChg");
+    qDebug() << "tickChg";
     if (data.isEmpty())
         return;
 

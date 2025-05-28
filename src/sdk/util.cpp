@@ -1,5 +1,7 @@
 #include "util.h"
 
+#include "libqt/util/strutil.h"
+
 void md_to_json(market_data* md, QJsonObject& js)
 {
     js["trading_day"] = md->trading_day;
@@ -92,4 +94,10 @@ void json_to_md(QJsonObject& js, market_data* md)
     md->turnover = js["turnover"].toDouble();
     memcpy(md->action_time, js["action_time"].toString().toStdString().c_str(), 9);
     md->action_ms = js["action_ms"].toInt();
+}
+
+bool checkContext(context* ctx)
+{
+    return ctx != nullptr 
+        && sizeof(*ctx) == ctx->sz;
 }

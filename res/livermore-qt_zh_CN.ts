@@ -8,10 +8,7 @@
         <location filename="../3rd/libqt/examples/lineedit/mainwindow.ui" line="14"/>
         <location filename="../3rd/libqt/examples/slider/mainwindow.ui" line="14"/>
         <location filename="../src/app/mainwindow.ui" line="14"/>
-        <location filename="../build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/3rd/libqt/examples/autogrid/autogrid_autogen/include/ui_mainwindow.h" line="51"/>
-        <location filename="../build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/3rd/libqt/examples/lineedit/lineedit_autogen/include/ui_mainwindow.h" line="129"/>
-        <location filename="../build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/3rd/libqt/examples/slider/slider_autogen/include/ui_mainwindow.h" line="57"/>
-        <location filename="../build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/src/app/livermore-qt_autogen/include/ui_mainwindow.h" line="55"/>
+        <location filename="../out/build/debug/src/app/livermore-qt_autogen/include/ui_mainwindow.h" line="55"/>
         <source>MainWindow</source>
         <translation type="unfinished"></translation>
     </message>
@@ -42,81 +39,37 @@
     </message>
     <message>
         <location filename="../3rd/libqt/examples/lineedit/mainwindow.ui" line="21"/>
-        <location filename="../build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/3rd/libqt/examples/lineedit/lineedit_autogen/include/ui_mainwindow.h" line="130"/>
         <source>IntegerLineEdit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../3rd/libqt/examples/lineedit/mainwindow.ui" line="31"/>
-        <location filename="../build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/3rd/libqt/examples/lineedit/lineedit_autogen/include/ui_mainwindow.h" line="131"/>
         <source>DecimalLineEdit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../3rd/libqt/examples/lineedit/mainwindow.ui" line="41"/>
-        <location filename="../build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/3rd/libqt/examples/lineedit/lineedit_autogen/include/ui_mainwindow.h" line="132"/>
         <source>NumAlphabetLineEdit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../3rd/libqt/examples/lineedit/mainwindow.ui" line="51"/>
-        <location filename="../build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/3rd/libqt/examples/lineedit/lineedit_autogen/include/ui_mainwindow.h" line="133"/>
         <source>Ipv4LineEdit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../3rd/libqt/examples/lineedit/mainwindow.ui" line="61"/>
-        <location filename="../build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/3rd/libqt/examples/lineedit/lineedit_autogen/include/ui_mainwindow.h" line="134"/>
         <source>NetPortLineEdit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../3rd/libqt/examples/lineedit/mainwindow.ui" line="71"/>
-        <location filename="../build/Desktop_Qt_5_15_2_MinGW_64_bit-Debug/3rd/libqt/examples/lineedit/lineedit_autogen/include/ui_mainwindow.h" line="135"/>
         <source>MacLineEdit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../3rd/libqt/examples/autogrid/mainwindow.cpp" line="14"/>
         <source>myGrid</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QObject</name>
-    <message>
-        <location filename="../src/app/util.cpp" line="9"/>
-        <source>ok</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/app/util.cpp" line="10"/>
-        <source>err_fail</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/app/util.cpp" line="11"/>
-        <source>err_cmd_not_exist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/app/util.cpp" line="12"/>
-        <source>err_dial_timeout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/app/util.cpp" line="13"/>
-        <source>err_tcp_broker_already_connected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/app/util.cpp" line="14"/>
-        <source>err_broker_not_connected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/app/util.cpp" line="15"/>
-        <source>unknow_err</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

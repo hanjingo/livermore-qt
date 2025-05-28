@@ -1,8 +1,9 @@
 #include "data.h"
 
 #include "util.h"
-#include "libcpp/log/logger.hpp"
+#include "libqt/log/logger.h"
 #include "libqt/db/dbconnpool.h"
+#include "libqt/util/strutil.h"
 
 #include <QVariant>
 #include <tuple>
@@ -48,10 +49,11 @@ void Data::load(QDateTime start, QDateTime end, const int limit)
         sql += QString(";");
 
     DBConnPool::instance()->exec(sql, [this](QSqlQuery& query){
+
         auto err = query.lastError();
         if(!err.text().isEmpty())
         {
-            LOG_ERROR("fail to load tick data with err = {}", err.text().toStdString());
+            qCritical() << "fail to load tick data with err = " << err.text();
             return;
         }
 
@@ -60,11 +62,11 @@ void Data::load(QDateTime start, QDateTime end, const int limit)
         while (query.next())
         {
             market_data* md = new market_data();
-            memcpy(md->instrument_id, query.value(0).toString().toStdString().c_str(), 31);
-            memcpy(md->instrument_name, query.value(1).toString().toStdString().c_str(), 21);
-            memcpy(md->exchange_id, query.value(2).toString().toStdString().c_str(), 9);
-            memcpy(md->trading_day, query.value(3).toString().toStdString().c_str(), 9);
-            memcpy(md->action_time, query.value(4).toString().toStdString().c_str(), 9);
+            StrUtil::strncpy(md->instrument_id, query.value(0).toString(), 31);
+            StrUtil::strncpy(md->instrument_name, query.value(1).toString(), 21);
+            StrUtil::strncpy(md->exchange_id, query.value(2).toString(), 9);
+            StrUtil::strncpy(md->trading_day, query.value(3).toString(), 9);
+            StrUtil::strncpy(md->action_time, query.value(4).toString(), 9);
             md->last_price = query.value(5).toDouble();
             md->pre_close_price = query.value(6).toDouble();
             md->open_price = query.value(7).toDouble();
@@ -156,11 +158,11 @@ void Data::update()
     }
 
     // draw day K line
-    LOG_DEBUG("emit sigkVolumeChg");
+    qDebug() << "emit sigkVolumeChg";
     emit sigkVolumeChg(kVolumes);
 
     // draw stock canvas
-    LOG_DEBUG("emit tickChg");
+    qDebug() << "emit tickChg";
     emit sigTickChg(ticks);
 }
 

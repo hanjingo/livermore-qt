@@ -42,7 +42,7 @@ Broker::~Broker()
 err Broker::dial(const QString& ip, const quint16 port, int ms)
 {
     if (m_cli->isConnected())
-        return err_tcp_broker_already_connected;
+        return err_broker_already_connected;
 
     m_cli->dial(ip, port, ms, std::bind(&Broker::constructMsg, this));
     if (!m_cli->isConnected())
@@ -60,7 +60,7 @@ err Broker::close()
     m_cli->close();
 }
 
-err Broker::subMd(char* topic)
+err Broker::subMarketData(char* topic)
 {
     auto msg = m_objs.acquire();
     msg->id = msg_id_md_sub_req;
@@ -95,16 +95,16 @@ void Broker::onReadyRead()
         break;
     }
     case msg_id_md_sub_rsp: {
-        int result = js->payload["result"].toInt();
-        QJsonArray arr = js->payload["topics"].toArray();
-        char* topics[arr.count()];
-        for (int i = 0; i < arr.count(); ++i)
-        {
-           char* str;
-           strcpy(str, arr[i].toString().toStdString().c_str());
-           topics[i] = str;
-        }
-        emit this->subMdRsp(result, arr.count(), topics);
+        //int result = js->payload["result"].toInt();
+        //QJsonArray arr = js->payload["topics"].toArray();
+        //char* topics[arr.count()];
+        //for (int i = 0; i < arr.count(); ++i)
+        //{
+        //   char* str;
+        //   strcpy(str, arr[i].toString().toStdString().c_str());
+        //   topics[i] = str;
+        //}
+        //emit this->subMdRsp(result, arr.count(), topics);
         break;
     }
     case msg_id_md_unsub_rsp: {

@@ -7,7 +7,7 @@
 #include "klinegrid.h"
 #include "showdetail.h"
 #include "tmdivisionchart.h"
-#include "libcpp/log/logger.hpp"
+#include "libqt/log/logger.h"
 
 #include <QSplitter>
 #include <QPushButton>

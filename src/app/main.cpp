@@ -6,24 +6,25 @@
 #include "handler.h"
 #include "mainwindow.h"
 
-#include "libcpp/log/logger.hpp"
-#include "libcpp/os/env.h"
+#include "libqt/log/logger.h"
+#include "libqt/core/macro.h"
 
 #include "libqt/db/dbconnpool.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    LOG_INFO("main function enter");
 
     // init log
-    libcpp::logger::instance()->add_sink(
-       libcpp::logger::create_rotate_file_sink(
-           Config::instance()->logPath().toStdString(),
+    Logger::instance()->addSink(
+       Logger::createRotateFileSink(
+           Config::instance()->logPath(),
            Config::instance()->logSize(),
            Config::instance()->logFileNum(),
            Config::instance()->logIsRotate()));
-    libcpp::logger::instance()->set_level(static_cast<libcpp::log_lvl>(Config::instance()->logLvl()));
+    Logger::instance()->setLevel(Config::instance()->logLvl());
+    Logger::catchQtMsg();
+    qInfo() << "main function enter";
 
     // translator
     QTranslator translator;
@@ -31,10 +32,10 @@ int main(int argc, char *argv[])
     a.installTranslator(&translator);
 
     // add water mark
-    LOG_INFO("livermore-qt");
-    LOG_INFO("livermore-qt {}.{}.{}", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-    LOG_INFO("livermore-qt compile time {}", COMPILE_TIME);
-    LOG_INFO("livermore-qt email {}", "hehehunanchina@live.com");
+    qInfo() << "livermore-qt ";
+    qInfo() << "livermore-qt " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
+    qInfo() << "livermore-qt compile time " << COMPILE_TIME;
+    qInfo() << "livermore-qt email " << "hehehunanchina@live.com";
 
     // show main window
     MainWindow w;
@@ -45,9 +46,9 @@ int main(int argc, char *argv[])
         auto db = QSqlDatabase::addDatabase(Config::instance()->dbDriver(), Data::dbID());
         db.setDatabaseName(Config::instance()->dbPath());
         if (!db.open())
-            LOG_WARN("FAIL TO CREATE DB CONN");
+            qWarning() << "FAIL TO CREATE DB CONN";
         else
-            LOG_INFO("create db conn succ");
+            qInfo() << "create db conn succ";
         return db;
     });
     DBConnPool::instance()->setConnNum(Config::instance()->dbMaxConn());
@@ -91,16 +92,18 @@ R"(CREATE TABLE IF NOT EXISTS "tick" (
     DBConnPool::instance()->exec(sql, [sql](QSqlQuery& query){
         auto err = query.lastError();
         if(!err.text().isEmpty())
-            LOG_ERROR("fail to init db with err = {}, sql={}",
-                        err.text().toStdString(), sql.toStdString());
+            qCritical() << "fail to init db with err = " << err.text() << ", sql=" << sql;
     });
 
     // repaint kvolumegrid
     Data::instance()->load(QDateTime::fromString("20250421", "yyyyMMdd"));
 
     // load sdk: init->dial->sub topic
-    Handler::instance()->init();
+    Handler::instance()->load(Config::instance()->sdkPath());
+    char version[20] = {0};
+    StrUtil::strncpy(version, Config::instance()->sdkVersion(), 20);
+    Handler::instance()->init(version);
     
-    LOG_INFO("livermore-qt running");
+    qInfo() << "livermore-qt running";
     return a.exec();
 }

@@ -4,27 +4,45 @@
 #include <QObject>
 #include <QPointer>
 #include <QDebug>
+#include <QLibrary>
 
 #include "config.h"
 #include "market_data.h"
+
+#include "libqt/core/macro.h"
+#include "libqt/log/logger.h"
+#include "libqt/util/strutil.h"
+#include "libqt/core/objpool.h"
+
+extern "C" {
 #include "livermoresdk.h"
+}
 
-#include "libcpp/log/logger.hpp"
+enum cmd : int
+{
+    cmd_init = 0,
+    cmd_dial_broker,
+    cmd_close_broker,
+    cmd_market_data_ntf,
+    cmd_sub_market_data,
+    cmd_quit,
 
-class Handler : public QObject
+    cmd_end,
+};
+
+class Handler : public QLibrary
 {
     Q_OBJECT
+
 public:
-    Handler(QObject *p = nullptr)
-        : m_sdk{nullptr}
-        , m_fnRegisterCB{nullptr}
-        , m_fnExec{nullptr}
-        , m_bLoaded{false}
-    {}
+    Handler(QObject* p = nullptr)
+        : QLibrary(p)
+    {
+    }
 
     ~Handler()
     {
-        unloadSDK();
+        unload();
     }
 
     static QPointer<Handler> instance()
@@ -33,93 +51,29 @@ public:
         return inst;
     }
 
-    void init()
-    {
-        if (m_bLoaded)
-            return;
+    bool load(const QString& path);
+    bool unload();
+    void call(const cmd api, sdk_callback cb, void* params);
 
-        m_bLoaded = true;
-        m_sdk = dll_open(Config::instance()->sdkPath().toStdString().c_str(), DLL_RTLD_NOW);
-        LOG_DEBUG("load sdk with m_sdk={}, path={}", m_sdk, Config::instance()->sdkPath().toStdString());
-        if (m_sdk == nullptr)
-        {
-            LOG_CRITICAL("FAIL TO LOAD SDK WITH PATH={}", Config::instance()->sdkPath().toStdString());
-            return;
-        }
-        m_fnRegisterCB = (err(*)(cmd, void*))dll_get(m_sdk, "register_cb");
-        m_fnExec = (err(*)(cmd, ...))dll_get(m_sdk, "exec");
+    void init(const char* version);
+    void dialBroker(const QString& ip, int port);
+    void closeBroker(const QString& ip, int port);
+    void subMarketData(const QStringList& topics);
+    void quit();
 
-        // register callback
-        reg(cmd_init_sdk, &Handler::onSDKInit);
-        reg(cmd_dial_broker, &Handler::onDialBroker);
-        reg(cmd_close_broker, &Handler::onCloseBroker);
-        reg(cmd_md_ntf, &Handler::onMdNtf);
-        reg(cmd_md_sub, &Handler::onSub);
-        reg(cmd_quit_sdk, &Handler::onQuitSDK);
+protected:
+    static void cbInitSdk(void*);
+    static void cbDialBroker(void*);
+    static void cbCloseBroker(void*);
+    static void cbSubMarketData(void*);
+    static void cbQuit(void*);
 
-        // init sdk
-        Handler::instance()->call(cmd_init_sdk);
-    }
-
-    template<typename F>
-    void reg(cmd api, F f)
-    {
-        if (m_fnRegisterCB == nullptr)
-        {
-            LOG_WARN("register not exist");
-            return;
-        }
-
-        LOG_DEBUG("reg api={}", int(api));
-        m_fnRegisterCB(api, reinterpret_cast<void*>(f));
-    }
-
-    template<typename... Args>
-    void call(const cmd api, Args&& ... args)
-    {
-        if (m_fnExec == nullptr)
-            return;
-
-        m_fnExec(api, std::forward<Args>(args)...);
-    }
-
-    void quit()
-    {
-        call(cmd_quit_sdk);
-    }
-
-    void unloadSDK()
-    {
-        if (!m_bLoaded)
-            return;
-
-        LOG_DEBUG("DLL CLOSE WITH m_sdk={}", m_sdk);
-        m_bLoaded = false;
-        if (m_sdk != nullptr)
-        {
-            auto ret = dll_close(m_sdk);
-            LOG_DEBUG("DLL CLOSE RET={}", ret);
-        }
-
-        LOG_DEBUG("DLL CLOSED");
-        m_sdk = nullptr;
-        m_fnRegisterCB = nullptr;
-        m_fnExec = nullptr;
-    }
+//signals:
+//    void initSdkDone();
+//    void mdNtf(int num, market_data** mds);
 
 private:
-    static void onSDKInit(err);
-    static void onDialBroker(err, char*, unsigned long);
-    static void onCloseBroker(err, char*, unsigned long);
-    static void onMdNtf(int num, market_data** mds);
-    static void onSub(int result, int num, char** args);
-    static void onQuitSDK(err);
-
-private:
-    bool m_bLoaded;
-    void* m_sdk;
-    err(*m_fnRegisterCB)(cmd, void*);
-    err(*m_fnExec)(cmd, ...);
+    sdk_api m_cmds[cmd_end] = {nullptr};
 };
 
 #endif

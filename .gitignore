@@ -55,6 +55,13 @@ compile_commands.json
 
 *_qmlcache.qrc
 
+# Visual Studio
+out
+.vs
+CMakePresets.json
+CMakeUserPresets.json
+
+
 # build path
 bin
 build

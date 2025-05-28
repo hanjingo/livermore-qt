@@ -26,30 +26,39 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # enable debug info in release/debug model
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_DEBUG} -g")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -g")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g")
 # disable optimize in release/debug model
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_DEBUG} -O0") # prefer to -O2
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0") # prefer to -O2
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O0") # prefer to -O2
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O0")
 if(MSVC)
     # generate PDB file
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_DEBUG} /Zi")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} /Zi")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Zi")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Zi")
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /Zi")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DEBUG")
 endif()
 
+# utf-8 enable
+#add_compile_options(
+#    /source-charset:utf-8 
+#    /execution-charset:utf-8)
+
 add_definitions(-DUSE_DEEP_DATA=true) # Use Deep Market Data
 
 set(3RD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../3rd)
-set(LIBCPP ${3RD_DIR}/libcpp)
 set(LIBQT ${3RD_DIR}/libqt)
 set(SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../sdk)
+
+# utf-8 enable
+add_compile_options(
+    /source-charset:utf-8 
+    /execution-charset:utf-8)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql)
@@ -64,7 +73,6 @@ set(PROJECT_SOURCES
         kvolumegrid.h
         kvolumegrid.cpp
         config.h
-        config.cpp
         data.h
         data.cpp
         util.h
@@ -79,10 +87,11 @@ set(PROJECT_SOURCES
         ${LIBQT}/libqt/db/dbconnpool.cpp
         ${LIBQT}/libqt/ui/autogrid.h
         ${LIBQT}/libqt/ui/autogrid.cpp
+        ${LIBQT}/libqt/log/logger.h
 )
 
-include_directories(${LIBCPP})
 include_directories(${LIBQT})
+include_directories(${LIBQT}/3rd)
 include_directories(${SDK_DIR})
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -111,5 +120,17 @@ endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Sql
-    spdlog::spdlog
 )
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    message("install to ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}")
+
+    install(TARGETS ${PROJECT_NAME}
+        DESTINATION "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}"
+    )
+
+    if(WIN32)
+        include(${LIBQT}/cmakes/deployqt.cmake)
+        windeployqt(${PROJECT_NAME} ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
+    endif()
+endif()
