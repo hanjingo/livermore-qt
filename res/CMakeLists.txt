@@ -17,7 +17,8 @@ foreach(_chinese_file ${TS_FILES})
 endforeach()
 # translate end
 
-# execute_process(COMMAND ./sqlite3 livermore-qt.db)
+#sqlite3.exe .\DataFiles\AppControlDB.db < .\AppControlDB.sql
+#execute_process(COMMAND ./sqlite3 livermore-qt.db < livermore-qt.sql)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/conf.ini DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
      FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE WORLD_READ WORLD_WRITE)

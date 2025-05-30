@@ -8,7 +8,7 @@
         <location filename="../3rd/libqt/examples/lineedit/mainwindow.ui" line="14"/>
         <location filename="../3rd/libqt/examples/slider/mainwindow.ui" line="14"/>
         <location filename="../src/app/mainwindow.ui" line="14"/>
-        <location filename="../out/build/debug/src/app/livermore-qt_autogen/include/ui_mainwindow.h" line="55"/>
+        <location filename="../build/debug/src/app/livermore-qt_autogen/include/ui_mainwindow.h" line="55"/>
         <source>MainWindow</source>
         <translation type="unfinished"></translation>
     </message>

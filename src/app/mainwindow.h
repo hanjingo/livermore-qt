@@ -35,7 +35,7 @@ private:
     void closeEvent(QCloseEvent *event) override
     {
         Handler::instance()->quit();
-        event->ignore();
+        event->accept();
     }
 
 private slots:

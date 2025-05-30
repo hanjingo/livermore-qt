@@ -44,11 +44,6 @@ if(MSVC)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DEBUG")
 endif()
 
-# utf-8 enable
-#add_compile_options(
-#    /source-charset:utf-8 
-#    /execution-charset:utf-8)
-
 add_definitions(-DUSE_DEEP_DATA=true) # Use Deep Market Data
 
 set(3RD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../3rd)
@@ -56,9 +51,8 @@ set(LIBQT ${3RD_DIR}/libqt)
 set(SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../sdk)
 
 # utf-8 enable
-add_compile_options(
-    /source-charset:utf-8 
-    /execution-charset:utf-8)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /utf-8")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /utf-8")
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql)

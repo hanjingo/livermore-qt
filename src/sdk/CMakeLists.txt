@@ -25,11 +25,6 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-## utf-8 enable
-#add_compile_options(
-#    /source-charset:utf-8 
-#    /execution-charset:utf-8)
-
 # # enable to create pdb file in RELEASE mode
 # set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")
 # set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /DEBUG /OPT:REF /OPT:ICF")
@@ -62,9 +57,8 @@ if(MSVC)
 endif()
 
 # utf-8 enable
-add_compile_options(
-    /source-charset:utf-8 
-    /execution-charset:utf-8)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /utf-8")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /utf-8")
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Network Concurrent)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Network Concurrent)
